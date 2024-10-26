@@ -1,7 +1,7 @@
 // const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
 import { Telegraf } from "telegraf";
-import ExcelJS, { Workbook, Worksheet } from "exceljs";
+import ExcelJS, { Workbook, Worksheet, CellValue } from "exceljs";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import * as fs from "fs";
 import { Message } from "telegraf/typings/core/types/typegram";
@@ -65,28 +65,34 @@ bot.command("add", async (ctx) => {
   await ctx.reply(`Данные добавлены: ID=${id}, Value=${value}`);
 });
 
-// bot.command('read', async (ctx) => {
-//   const fileName = excelFiles[ctx.chat.id];
-//   if (!fileName) {
-//     await ctx.reply('Создайте таблицу командой /create.');
-//     return;
-//   }
-//
-//   const workbook: Workbook = new ExcelJS.Workbook();
-//   await workbook.xlsx.readFile(fileName);
-//   const worksheet = workbook.getWorksheet('Sheet 1');
-//   let result = 'Данные из таблицы:\n';
-//
-//   worksheet.eachRow((row, rowNumber) => {
-//     const rowValues = Array.isArray(row.values)
-//       ? row.values.map((value: CellValue) => (value !== null ? String(value) : ''))
-//       : [];
-//
-//     result += `${rowNumber}: ${rowValues.join(', ')}\n`;
-//   });
-//
-//   await ctx.reply(result);
-// });
+
+bot.command("read", async (ctx) => {
+  const fileName = excelFiles[ctx.chat.id];
+
+
+  if (!fileName) {
+    await ctx.reply("Создайте таблицу командой /create.");
+    return;
+  }
+
+  const workbook: Workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(fileName);
+  const worksheet = workbook.getWorksheet("Sheet 1");
+  let result = "Данные из таблицы:\n";
+
+  worksheet.eachRow((row, rowNumber) => {
+    const rowValues = Array.isArray(row.values)
+      ? row.values.map((value: CellValue) =>
+          value !== null ? String(value) : ""
+        )
+      : [];
+
+    result += `${rowNumber}: ${rowValues.join(", ")}\n`;
+  });
+
+  await ctx.reply(result);
+});
+
 
 // Команда для генерации графика
 bot.command("chart", async (ctx) => {

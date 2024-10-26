@@ -8,8 +8,7 @@ services:
       - ./app:/usr/src/app
     env_file:
         - ./.env
-    command: >
-      sh -c "yarn start:dev"
+    command: "/bin/sh -c 'yarn start:dev'"
     ports:
-      - $APP_PORT:$APP_PORT
-      - $DEBUG_PORT:$DEBUG_PORT
+        - $APP_PORT:$APP_PORT
+        - $DEBUG_PORT:$DEBUG_PORT
