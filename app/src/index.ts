@@ -1,5 +1,3 @@
-// const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
-
 import { Telegraf } from "telegraf";
 import ExcelJS, { Workbook, Worksheet, CellValue } from "exceljs";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
@@ -7,6 +5,7 @@ import * as fs from "fs";
 import { Message } from "telegraf/typings/core/types/typegram";
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
+const fileName = "table.xlsx";
 
 // Конфигурация для ChartJSNodeCanvas
 const width = 800;
@@ -17,59 +16,74 @@ const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height });
 const excelFiles: { [chatId: number]: string } = {};
 
 bot.command("create", async (ctx) => {
-  if (excelFiles[ctx.chat.id]) {
-    await ctx.reply(
-      "Таблица уже создана!"
-    );
-
+  // Проверяем, существует ли файл
+  if (fs.existsSync(fileName)) {
+    await ctx.reply("Таблица уже существует.");
     return;
   }
 
-  const workbook: Workbook = new ExcelJS.Workbook();
-  const worksheet: Worksheet = workbook.addWorksheet("Sheet 1");
+  // Создаем новый файл Excel и добавляем лист с заголовками
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet("Sheet 1");
 
   worksheet.columns = [
-    { header: "ID", key: "id" },
-    { header: "Value", key: "value" },
+    { header: "Label", key: "label", width: 20 },
+    { header: "Value", key: "value", width: 10 },
   ];
 
-  const fileName = `table.xlsx`;
   await workbook.xlsx.writeFile(fileName);
-
-  excelFiles[ctx.chat.id] = fileName;
-  await ctx.reply("Создана новая таблица.");
+  await ctx.reply("Таблица успешно создана.");
 });
 
-// Команда для добавления данных в таблицу
 bot.command("add", async (ctx) => {
-  const data = ctx.message?.text.split(" ").slice(1);
-
-  if (!data || data.length !== 2) {
-    await ctx.reply("Используйте: /add <ID> <Value>");
+  // Проверка: существует ли файл таблицы
+  if (!fs.existsSync(fileName)) {
+    await ctx.reply(
+      "Таблица не найдена. Сначала создайте ее с помощью команды /create."
+    );
     return;
   }
 
-  const [id, value] = data;
-  const fileName = excelFiles[ctx.chat.id];
-
-  if (!fileName) {
-    await ctx.reply("Создайте таблицу командой /create.");
+  // Получение данных для добавления
+  const messageText = ctx.message?.text;
+  const input = messageText?.split(" ").slice(1); // Пример: /add label value
+  if (!input || input.length < 2) {
+    await ctx.reply(
+      "Пожалуйста, укажите данные для добавления в формате: /add label value"
+    );
     return;
   }
 
-  const workbook: Workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.readFile(fileName);
-  const worksheet = workbook.getWorksheet("Sheet 1");
-  worksheet.addRow({ id, value });
-  await workbook.xlsx.writeFile(fileName);
-  await ctx.reply(`Данные добавлены: ID=${id}, Value=${value}`);
+  const [label, value] = input;
+
+  try {
+    // Открываем существующий файл Excel
+    const workbook = new ExcelJS.Workbook();
+    console.log(`Открываем файл ${fileName} для добавления данных`);
+    await workbook.xlsx.readFile(fileName);
+    const worksheet = workbook.getWorksheet("Sheet 1");
+
+    if (!worksheet) {
+      await ctx.reply("Ошибка: лист не найден.");
+      return;
+    }
+
+    // Добавляем новую строку с данными
+    worksheet.addRow([label, parseFloat(value)]);
+
+    // Сохраняем файл
+    console.log(`Сохраняем изменения в файл ${fileName}`);
+    await workbook.xlsx.writeFile(fileName);
+    console.log(`Файл ${fileName} успешно обновлен`);
+
+    await ctx.reply(`Добавлена новая запись: ${label} - ${value}`);
+  } catch (error) {
+    console.error("Ошибка при добавлении записи:", error);
+    await ctx.reply("Произошла ошибка при добавлении записи.");
+  }
 });
-
 
 bot.command("read", async (ctx) => {
-  const fileName = excelFiles[ctx.chat.id];
-
-
   if (!fileName) {
     await ctx.reply("Создайте таблицу командой /create.");
     return;
@@ -93,11 +107,9 @@ bot.command("read", async (ctx) => {
   await ctx.reply(result);
 });
 
-
 // Команда для генерации графика
 bot.command("chart", async (ctx) => {
   try {
-    const fileName = excelFiles[ctx.chat.id];
     if (!fileName) {
       await ctx.reply("Создайте таблицу командой /create.");
       return;
@@ -140,9 +152,8 @@ bot.command("chart", async (ctx) => {
     await ctx.reply("Произошла ошибка при генерации графика.");
   }
 });
-// Запуск бота
+
 bot.launch().then(() => console.log("Bot is running!"));
 
-// Обработка завершения работы
 process.once("SIGINT", () => bot.stop("SIGINT"));
 process.once("SIGTERM", () => bot.stop("SIGTERM"));
