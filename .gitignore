@@ -1,0 +1,23 @@
+.DS_Store
+
+# Node
+node_modules
+npm-debug.log
+package-lock.json
+build
+
+# Docker
+runtime/
+.docker-conf/
+
+# TS
+tsconfig.tsbuildinfo
+tsconfig.build.tsbuildinfo
+
+# Tempopary
+dist
+build
+coverage/
+report.xml
+runtime
+logs/

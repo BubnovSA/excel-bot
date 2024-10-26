@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+        "@project/*": ["./src/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "module": "Commonjs",
+    "lib": ["es6", "dom"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "node",
+    "types": ["node", "jest"],
+    "target": "es5",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": false,
+    "esModuleInterop": true,
+    "outDir": "build",
+    "removeComments": true,
+    "rootDir": "./src",
+    "sourceMap": true
+  },
+  "include": ["./src/**/*.ts", "./src/**/*.json"],
+  "exclude": ["node_modules", "build", "src/**/spec.ts", "src/**/test.ts"]
+}

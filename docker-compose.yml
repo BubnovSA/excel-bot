@@ -1,0 +1,15 @@
+services:
+  tgbot:
+    image: $NODE_IMAGE
+    container_name: 
+      'tgbot'
+    working_dir: /usr/src/app
+    volumes:
+      - ./app:/usr/src/app
+    env_file:
+        - ./.env
+    command: >
+      sh -c "yarn start:dev"
+    ports:
+      - $APP_PORT:$APP_PORT
+      - $DEBUG_PORT:$DEBUG_PORT
