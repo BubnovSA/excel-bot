@@ -17,6 +17,7 @@ tsconfig.build.tsbuildinfo
 # Tempopary
 dist
 build
+app/table_*.xlsx
 coverage/
 report.xml
 runtime
