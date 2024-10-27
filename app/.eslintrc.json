@@ -1,0 +1,36 @@
+{
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "./tsconfig.json",
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+    ],
+    "rules": {
+        "indent": [
+            "error",
+            4
+        ], // Отступ в 4 пробела
+        "@typescript-eslint/indent": ["error", 4],
+        "quotes": [
+            "error",
+            "double"
+        ], // Использование двойных кавычек
+        "semi": [
+            "error",
+            "always"
+        ], // Всегда ставить точки с запятой
+        "no-console": "warn", // Выдавать предупреждение для console.log
+        "prefer-const": "error", // Использовать const, когда это возможно
+        "@typescript-eslint/no-unused-vars": [
+            "warn"
+        ], // Предупреждать об неиспользуемых переменных
+        "@typescript-eslint/explicit-module-boundary-types": "off" // Отключить требование явного указания типов
+    }
+}
