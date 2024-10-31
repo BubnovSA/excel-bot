@@ -1,8 +1,8 @@
 services:
-  tgbot:
+  bot:
     image: $NODE_IMAGE
     container_name: 
-      'tgbot'
+      'bot'
     working_dir: /usr/src/bot
     volumes:
       - ./bot:/usr/src/bot
